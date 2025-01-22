@@ -1,0 +1,146 @@
+FastAPI Application - SQL Query Generation using OpenAI and Snowflake
+Overview
+This FastAPI application exposes an endpoint /v1/generate_sql which takes a natural language query as input and generates an SQL query based on the schema of a Snowflake database table. The query generation uses OpenAI's GPT model, and the system is secured with token-based authentication and rate-limiting.
+
+The main components include:
+
+OpenAI API Integration: Used for generating SQL queries based on natural language input.
+Snowflake Integration: Executes the generated SQL query on a Snowflake database.
+Rate Limiting: Limits the number of requests to the /v1/generate_sql endpoint.
+Token-based Authentication: Ensures that only authorized users can generate SQL queries.
+Caching: Caches the schema information for performance optimization.
+Input Validation: Ensures that the input query is non-empty and descriptive enough before proceeding.
+Functional Breakdown
+1. Environment Setup
+OpenAI API: The application uses the OpenAI GPT model to generate SQL queries from natural language. The API key is expected to be present in the environment variables as OPENAI_API_KEY.
+Snowflake: The application connects to a Snowflake database using credentials stored as environment variables (SNOWFLAKE_USER, SNOWFLAKE_PASSWORD, etc.).
+2. Rate Limiting
+The /v1/generate_sql endpoint is rate-limited using the SlowAPI library:
+
+Limit: 100 requests per minute.
+When the rate limit is exceeded, a RateLimitExceeded exception is thrown, and a 429 Too Many Requests error is returned to the user.
+
+3. Token-based Authentication
+The application uses token-based authentication for access control:
+
+Each request must include a valid token in the x-token header.
+The token is compared against the value stored in the environment variable API_ACCESS_TOKEN. If the token doesn't match, a 401 Unauthorized error is returned.
+4. Input Validation
+The user query is validated before being processed:
+
+The query must be non-empty.
+The query length must be at least 15 characters to ensure it's descriptive enough for generating meaningful SQL.
+5. Schema Caching
+The schema of the AR_INVOICE_DETAILS table is fetched from Snowflake, but to improve performance, the schema is cached for 2 hours. If the schema is already cached and hasn't expired, the cached version is used.
+
+6. Query Preprocessing
+Before sending the user query to OpenAI for SQL generation, the query undergoes preprocessing:
+
+Unnecessary characters and whitespace are removed.
+Deduplication is performed.
+The query is shortened if it's too long (while retaining its meaning).
+SQL injection risks are mitigated by removing any SQL-related keywords or commands like DDL, DML, or SQL.
+7. Functional Constraints
+Functional constraints are applied to ensure that the generated SQL query adheres to business rules:
+
+Column names and table names must match the database schema.
+SQL functions or syntax unsupported by Snowflake are avoided.
+Filtering and sorting should be based on valid column values from the schema.
+Query results should be limited to a reasonable number of rows (e.g., 100 rows).
+Case-insensitive search (ILIKE) is used for string comparisons.
+Specific phrases like "Pending" are treated as synonyms for certain invoice statuses like "Open."
+8. SQL Query Generation
+The natural language query and the table schema are passed to OpenAI's GPT model (gpt-3.5-turbo) as a prompt. The prompt includes:
+
+The database schema.
+Functional constraints.
+Preprocessing rules.
+OpenAI processes this prompt and returns an SQL query that is then validated and cleaned using regular expressions.
+
+9. Executing SQL on Snowflake
+Once the SQL query is validated, it is executed on the Snowflake database using the Snowflake Python connector (snowflake.connector). The query result is then returned to the user as JSON.
+
+10. Error Handling
+Errors are handled at various levels:
+
+OpenAI errors: If there is an issue with the OpenAI API, a 503 Service Unavailable error is returned.
+Snowflake errors: If there is an issue executing the SQL query on Snowflake, a 400 Bad Request error is returned.
+General errors: Any other exceptions are caught, and a 500 Internal Server Error is returned.
+API Endpoint Documentation
+POST /v1/generate_sql
+Request
+Headers:
+
+x-token: (Required) A valid access token for authentication.
+Body: A JSON object with a query field containing the natural language query.
+
+Example:
+
+json
+Copy
+Edit
+{
+  "query": "List all overdue invoices"
+}
+Response
+Success (200 OK):
+
+Returns the generated SQL query result from Snowflake as a JSON object.
+Example:
+
+json
+Copy
+Edit
+{
+  "results": [
+    { "INVOICE_ID": 123, "INVOICE_STATUS": "Past Due", "AMOUNT": 500.0 },
+    { "INVOICE_ID": 124, "INVOICE_STATUS": "Past Due", "AMOUNT": 150.0 }
+  ],
+  "status": 200
+}
+Error (400 Bad Request):
+
+If the input query is empty or too short.
+Example:
+
+json
+Copy
+Edit
+{
+  "detail": "Invalid Input : Search text must be more descriptive."
+}
+Error (401 Unauthorized):
+
+If the x-token is missing or invalid.
+Example:
+
+json
+Copy
+Edit
+{
+  "detail": "Unauthorized access"
+}
+Error (429 Too Many Requests):
+
+If the rate limit is exceeded.
+Example:
+
+json
+Copy
+Edit
+{
+  "detail": "Too Many Requests"
+}
+Error (500 Internal Server Error):
+
+For unexpected server errors.
+Example:
+
+json
+Copy
+Edit
+{
+  "detail": "Internal server error: <error message>"
+}
+Conclusion
+This application allows users to convert natural language queries into SQL queries that can be executed on a Snowflake database. It includes key features like rate-limiting, authentication, and caching to ensure efficient and secure operation.
