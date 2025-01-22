@@ -41,8 +41,8 @@ Once the virtual environment is activated, install the required dependencies lis
 
 pip install -r requirements.txt
 This will install all the required libraries, including FastAPI and Uvicorn (for running the server).
-**
-4. Run the FastAPI Application**
+
+**4. Run the FastAPI Application**
 To start the FastAPI server, run the following command:
 
 uvicorn main:app --reload
@@ -53,6 +53,7 @@ After running the above command, the server should start, and you'll see output 
 
 INFO:     Will watch for changes in these directories: ['.', 'backend']
 INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+
 **5. Access the Application**
 Once the server is running, you can access the FastAPI app in your browser, through an API tool like Postman or React frontend code provided in the repository
 
