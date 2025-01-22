@@ -1,4 +1,7 @@
 
+
+  Front end functionality overview
+
   **Invoice Search:**
   Allows users to search invoices using a query input field.
   Validates input for SQL injection, invalid characters, and minimal query length.
