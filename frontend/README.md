@@ -19,7 +19,7 @@ Build Folder: Obtain the build folder containing the precompiled assets.
 
 **Steps to Run the Application**
 
-**  1. Clone the Repository:**
+**1. Clone the Repository:**
   git clone https://github.com/pshukla81/text-sql-llm-app.git
   cd text-sql-llm-app/frontend
 
@@ -32,13 +32,13 @@ Build Folder: Obtain the build folder containing the precompiled assets.
   ├── package.json
   └── README.md
 
-**  2. Create an .env file for x-token for authentication and API end point server name.**
+**2. Create an .env file for x-token for authentication and API end point server name.**
      
- ** 3. Start the Development Server:**
+ **3. Start the Development Server:**
   npm start
   The application will be available at http://localhost:3000.
 
- ** 4. Run the Production Build If you want to serve the production build:**
+ **4. Run the Production Build If you want to serve the production build:**
   npm install -g serve
   serve -s build
 
@@ -80,4 +80,4 @@ Build Folder: Obtain the build folder containing the precompiled assets.
 
 
 
->>>>>>> eaa23e6f7b4f5886b0b1ea04aab4ea00af8f8966
+
