@@ -42,7 +42,11 @@ Build Folder: Obtain the build folder containing the precompiled assets.
   npm install -g serve
   serve -s build
 
-**Frontend Functionality**
+
+
+----------------------------------------------------------------------------------------------------------
+**Frontend Functionality Documentation**
+-----------------------------------------------------------------------------------------------------------
 
   **Invoice Search:**
   Allows users to search invoices using a query input field.
