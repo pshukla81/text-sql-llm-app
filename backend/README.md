@@ -21,7 +21,7 @@ Follow these steps to get the application running locally.
 
 First, clone the repository to your local machine:
 
-```bash
+
 git clone https://github.com/pshukla81/text-sql-llm-app.git
 cd yourrepository/backend
 
