@@ -44,41 +44,6 @@ Build Folder: Obtain the build folder containing the precompiled assets.
 
 
 
-----------------------------------------------------------------------------------------------------------
-**Frontend Functionality Documentation**
------------------------------------------------------------------------------------------------------------
-
-  **Invoice Search:**
-  Allows users to search invoices using a query input field.
-  Validates input for SQL injection, invalid characters, and minimal query length.
-  Displays error messages for invalid inputs.
-  
-  **Dynamic Table:**
-  Presents search results in a structured, scrollable table.
-  Includes columns like Subsidiary, Business Unit, Invoice Number, and more.
-  
- ** Data Visualization:**
-  
- ** Pie Chart:**
-   Displays the breakdown of invoice statuses (Open, Paid, Overdue).
-  
-  **Line Charts:**
-  
-    Shows trends for Paid and Overdue invoices. Displays the trend of Overdue invoices over time.
-
-  **Code Structure**
-
-  **App.js: **
-    The main component containing the application logic, including:
-    State management using useState.
-    Input validation logic.
-    API request handling for fetching invoice data.
-    Chart and table rendering.
-  
-  **App.css:**
-    The styling file providing:
-    Responsive designs for tables and charts.
-    Custom tooltips and input error handling styles.
 
 
 
