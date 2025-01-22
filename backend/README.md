@@ -42,7 +42,9 @@ Once the virtual environment is activated, install the required dependencies lis
 pip install -r requirements.txt
 This will install all the required libraries, including FastAPI and Uvicorn (for running the server).
 
-**4. Run the FastAPI Application**
+**4. Create a .env file with the environment variable for Open API , Snowflake access **
+
+**5. Run the FastAPI Application**
 To start the FastAPI server, run the following command:
 
 uvicorn main:app --reload
@@ -54,13 +56,13 @@ After running the above command, the server should start, and you'll see output 
 INFO:     Will watch for changes in these directories: ['.', 'backend']
 INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
 
-**5. Access the Application**
-Once the server is running, you can access the FastAPI app in your browser, through an API tool like Postman or React frontend code provided in the repository
+**6. Access the Application**
+Once the server is running, you can access the FastAPI app in your browser, through an API tool like Postman or React frontend code provided in the repository. 
 
 The app will be available at http://127.0.0.1:8000.
 
-**6. Stop the Server**
+**7. Stop the Server**
 To stop the server, simply press CTRL+C in the terminal where the server is running.
 
-**Additional Notes**
-Make sure to check the requirements.txt file to verify the versions of dependencies.
+**8.Additional Notes**
+Make sure to check the requirements.txt file to verify the versions of dependencies. Make sure the frontend code provided in the frontend folder is setup correctly with the right env variables to access the python http://127.0.0.1:8000.v1/generate_sql endpoint
