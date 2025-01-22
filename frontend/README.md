@@ -1,8 +1,5 @@
 
-# text-sql-llm-app
-A full-stack application that allows users to input natural language queries and retrieves AR invoice data from a  Snowflake database using OpenAI. The application should be built with a React frontend and a Python backend, deployed on  AWS. 
-=======
-React Frontend - text-sql-llm full stack Application
+# React Frontend - text-sql-llm full stack Application
 
 **Overview**
 
@@ -22,25 +19,26 @@ Build Folder: Obtain the build folder containing the precompiled assets.
 
 **Steps to Run the Application**
 
-  Clone the Repository:
+**  1. Clone the Repository:**
   git clone https://github.com/pshukla81/text-sql-llm-app.git
   cd text-sql-llm-app/frontend
 
-  Add the Build Folder:
-  Copy the build folder into the frontend directory. The final structure should look like this:
+  The final structure should look like this:
   
   frontend/
-  ├── build/
+  
   ├── public/
   ├── src/
   ├── package.json
   └── README.md
 
-  Start the Development Server:
+**  2. Create an .env file for x-token for authentication and API end point server name.**
+     
+ ** 3. Start the Development Server:**
   npm start
   The application will be available at http://localhost:3000.
 
-  Run the Production Build If you want to serve the production build:
+ ** 4. Run the Production Build If you want to serve the production build:**
   npm install -g serve
   serve -s build
 
