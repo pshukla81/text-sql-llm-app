@@ -1,4 +1,5 @@
 FastAPI Application - SQL Query Generation using OpenAI and Snowflake
+
 Overview
 This FastAPI application exposes an endpoint /v1/generate_sql which takes a natural language query as input and generates an SQL query based on the schema of a Snowflake database table. The query generation uses OpenAI's GPT model, and the system is secured with token-based authentication and rate-limiting.
 
