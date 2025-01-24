@@ -1,0 +1,295 @@
+openapi: 3.0.0
+info:
+  title: AR Invoice Query API
+  description: A full-stack application allowing users to input natural language queries to retrieve AR invoice data from a Snowflake database using OpenAI.
+  version: 1.0.0
+servers:
+  - url: https://your-domain.com/api/v1
+    description: Production server (deployed on AWS)
+
+paths:
+  /invoices/query:
+    post:
+      summary: Accepts a natural language query, generates an equivalent SQL query, executes it against the database, and returns the top 100 AR Invoices data along with generalized insights.
+      description: The endpoint processes natural language queries, generates corresponding SQL queries, executes them against a Snowflake database, and returns the top 100 rows of aggregated AR invoice data with dynamic insights based on query context.
+      operationId: queryInvoices
+      tags:
+        - Invoices
+      requestBody:
+        description: Natural language query to be processed and executed against the database.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                query:
+                  type: string
+                  description: The natural language query input by the user.
+                  example: "Show all invoices for Acme Corp."
+              required:
+                - query
+        required: true
+      responses:
+        '200':
+          description: A successful response with the aggregated AR invoices data and dynamic insights.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sql_query:
+                    type: string
+                    description: The generated SQL query that was executed against the database.
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        subsidiary:
+                          type: string
+                        business_unit:
+                          type: string
+                        customer_name:
+                          type: string
+                        invoice_number:
+                          type: string
+                        invoice_date:
+                          type: string
+                          format: date
+                        invoice_status:
+                          type: string
+                        invoice_due_date:
+                          type: string
+                          format: date
+                        invoice_aging_bucket:
+                          type: string
+                        memo:
+                          type: string
+                        invoice_original_amount_local:
+                          type: number
+                          format: float
+                        invoice_original_amount_usd:
+                          type: number
+                          format: float
+                        invoice_open_amount_local:
+                          type: number
+                          format: float
+                        invoice_open_amount_usd:
+                          type: number
+                          format: float
+                        invoice_due_amount_local:
+                          type: number
+                          format: float
+                        invoice_due_amount_usd:
+                          type: number
+                          format: float
+                    description: Aggregated AR invoices data with detailed information (limited to the top 100 rows).
+                  insights:
+                    type: object
+                    properties:
+                      total_invoices:
+                        type: integer
+                        description: Total number of invoices returned (up to a maximum of 100).
+                      total_due_amount_local:
+                        type: number
+                        format: float
+                        description: Total due amount in local currency.
+                      total_due_amount_usd:
+                        type: number
+                        format: float
+                        description: Total due amount in USD.
+                      invoice_status_distribution:
+                        type: object
+                        additionalProperties:
+                          type: integer
+                        description: Distribution of invoices by status (e.g., "Paid", "Unpaid", "Pending").
+                      customer_invoice_count:
+                        type: object
+                        description: A breakdown of the number of invoices per customer.
+                        additionalProperties:
+                          type: integer
+                      highest_invoice_due:
+                        type: object
+                        properties:
+                          invoice_number:
+                            type: string
+                          due_amount_local:
+                            type: number
+                            format: float
+                          due_amount_usd:
+                            type: number
+                            format: float
+                        description: Information on the highest due invoice.
+                      aging_bucket_distribution:
+                        type: object
+                        additionalProperties:
+                          type: integer
+                        description: Distribution of invoices across aging buckets (e.g., "0-30 days", "31-60 days").
+                      total_open_amount_local:
+                        type: number
+                        format: float
+                        description: Total open amount across all invoices in local currency.
+                      total_open_amount_usd:
+                        type: number
+                        format: float
+                        description: Total open amount across all invoices in USD.
+                example:
+                  sql_query: "SELECT subsidiary, business_unit, customer_name, invoice_number, invoice_date, invoice_status, invoice_due_date, invoice_aging_bucket, memo, invoice_original_amount_local, invoice_original_amount_usd, invoice_open_amount_local, invoice_open_amount_usd, invoice_due_amount_local, invoice_due_amount_usd FROM invoices WHERE customer_name = 'Acme Corp' LIMIT 100"
+                  data:
+                    - subsidiary: "Subsidiary A"
+                      business_unit: "Unit X"
+                      customer_name: "Acme Corp"
+                      invoice_number: "INV-1234"
+                      invoice_date: "2024-01-01"
+                      invoice_status: "Unpaid"
+                      invoice_due_date: "2024-02-01"
+                      invoice_aging_bucket: "31-60 days"
+                      memo: "Late payment"
+                      invoice_original_amount_local: 1500.00
+                      invoice_original_amount_usd: 1200.00
+                      invoice_open_amount_local: 1500.00
+                      invoice_open_amount_usd: 1200.00
+                      invoice_due_amount_local: 1500.00
+                      invoice_due_amount_usd: 1200.00
+                  insights:
+                    total_invoices: 10
+                    total_due_amount_local: 15000.00
+                    total_due_amount_usd: 12000.00
+                    invoice_status_distribution:
+                      Paid: 2
+                      Unpaid: 7
+                      Pending: 1
+                    customer_invoice_count:
+                      "Acme Corp": 10
+                    highest_invoice_due:
+                      invoice_number: "INV-1234"
+                      due_amount_local: 1500.00
+                      due_amount_usd: 1200.00
+                    aging_bucket_distribution:
+                      "0-30 days": 3
+                      "31-60 days": 5
+                      "61-90 days": 2
+                    total_open_amount_local: 10000.00
+                    total_open_amount_usd: 8000.00
+        '400':
+          description: Invalid input or missing required fields.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message describing the validation issue.
+        '401':
+          description: Unauthorized, invalid or missing authentication tokens.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message for unauthorized access.
+        '429':
+          description: Too many requests, rate limit exceeded (100 requests per minute).
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message indicating rate limiting.
+                  retry_after:
+                    type: integer
+                    description: Time in seconds until the client can retry.
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message indicating the internal error.
+      security:
+        - BearerAuth: []
+        - UserToken: []
+    securitySchemes:
+      BearerAuth:
+        type: http
+        scheme: bearer
+        description: Use an API access token for authentication.
+      UserToken:
+        type: apiKey
+        in: header
+        name: x-token
+        description: Use a user-specific access token for authentication.
+
+components:
+  schemas:
+    Invoice:
+      type: object
+      properties:
+        subsidiary:
+          type: string
+        business_unit:
+          type: string
+        customer_name:
+          type: string
+        invoice_number:
+          type: string
+        invoice_date:
+          type: string
+          format: date
+        invoice_status:
+          type: string
+        invoice_due_date:
+          type: string
+          format: date
+        invoice_aging_bucket:
+          type: string
+        memo:
+          type: string
+        invoice_original_amount_local:
+          type: number
+          format: float
+        invoice_original_amount_usd:
+          type: number
+          format: float
+        invoice_open_amount_local:
+          type: number
+          format: float
+        invoice_open_amount_usd:
+          type: number
+          format: float
+        invoice_due_amount_local:
+          type: number
+          format: float
+        invoice_due_amount_usd:
+          type: number
+          format: float
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+    RateLimitError:
+      type: object
+      properties:
+        error:
+          type: string
+        retry_after:
+          type: integer
+          description: Time in seconds to wait before retrying the request.
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+    UserToken:
+      type: apiKey
+      in: header
+      name: x-token
