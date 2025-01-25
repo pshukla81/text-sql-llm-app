@@ -1,3 +1,230 @@
+-----------------------------------------------------------------------------------------------
+# AR Invoice Query API Documentation followed by actual openAPI.yaml spec at the bottom
+------------------------------------------------------------------------------------------------
+
+Overview
+This API allows users to submit natural language queries, which are then processed into SQL queries. The resulting queries are executed against a Snowflake database, and the API returns the top 100 AR invoices along with dynamic insights. This API supports pagination, sorting, and a variety of filtering options for the invoice data.
+
+API Version: 1.0.0
+Authentication
+This API requires two types of authentication methods:
+Bearer Authentication - Using an API access token.
+User Token - A user-specific token passed via a header.
+
+Security Schemes:
+BearerAuth: Uses an HTTP bearer token for authentication.
+UserToken: A custom API key passed in the header (e.g., x-token).
+
+Base URL
+https://production-domain.com/api/v1
+Endpoints
+1. POST /invoices/query
+Summary:
+This endpoint processes a natural language query, generates an equivalent SQL query, executes it against the database, and returns the top 100 AR invoices along with dynamic insights.
+
+Request:
+Request Body:
+json
+{
+  "query": "Show all invoices for Acme Corp."
+}
+query (required): A string containing the natural language query to retrieve invoices.
+Query Parameters:
+page (optional, default: 1): The page number for pagination.
+Example: page=1
+page_size (optional, default: 100): The number of invoices to return per page (maximum of 100).
+Example: page_size=100
+sort_by (optional): The field by which to sort the results, e.g., invoice_date, invoice_number.
+Example: sort_by=invoice_date
+sort_order (optional): The sorting order, either asc (ascending) or desc (descending).
+Example: sort_order=desc
+Response:
+200 - Successful Response
+json
+{
+  "sql_query": "SELECT * FROM invoices WHERE customer_name = 'Acme Corp.'",
+  "data": [
+    {
+      "subsidiary": "SubsidiaryA123",
+      "business_unit": "Sales",
+      "customer_name": "Acme Corp.",
+      "invoice_number": "INV123456",
+      "invoice_date": "2024-01-01",
+      "invoice_status": "OPEN",
+      "invoice_due_date": "2024-02-01",
+      "invoice_aging_bucket": "0-30",
+      "memo": "Initial invoice",
+      "invoice_original_amount_local": 1000.0,
+      "invoice_original_amount_usd": 1000.0,
+      "invoice_open_amount_local": 1000.0,
+      "invoice_open_amount_usd": 1000.0,
+      "invoice_due_amount_local": 1000.0,
+      "invoice_due_amount_usd": 1000.0
+    }
+  ],
+  "insights": {
+    "total_invoices": 100,
+    "total_due_amount_local": 50000.0,
+    "total_due_amount_usd": 50000.0,
+    "invoice_status_distribution": {
+      "OPEN": 60,
+      "PAST DUE": 30,
+      "CLOSED": 10
+    },
+    "customer_invoice_count": {
+      "Acme Corp.": 50,
+      "Beta Corp.": 30,
+      "Gamma Corp.": 20
+    },
+    "highest_invoice_due": {
+      "invoice_number": "INV123456",
+      "due_amount_local": 1000.0,
+      "due_amount_usd": 1000.0
+    },
+    "aging_bucket_distribution": {
+      "0-30": 60,
+      "31-60": 30,
+      "61-90": 10
+    },
+    "total_open_amount_local": 20000.0,
+    "total_open_amount_usd": 20000.0
+  }
+}
+Response Fields:
+sql_query: The SQL query generated from the natural language input.
+data: An array of invoice objects, each containing:
+subsidiary: The subsidiary associated with the invoice.
+business_unit: The business unit related to the invoice.
+customer_name: The name of the customer.
+invoice_number: The invoice number.
+invoice_date: The date the invoice was issued.
+invoice_status: The current status of the invoice (OPEN, PAST DUE, CLOSED).
+invoice_due_date: The due date for payment.
+invoice_aging_bucket: The aging bucket the invoice falls into (0-30, 31-60, 61-90 days).
+memo: A memo or note associated with the invoice.
+invoice_original_amount_local: The original invoice amount in local currency.
+invoice_original_amount_usd: The original invoice amount in USD.
+invoice_open_amount_local: The open invoice amount in local currency.
+invoice_open_amount_usd: The open invoice amount in USD.
+invoice_due_amount_local: The due invoice amount in local currency.
+invoice_due_amount_usd: The due invoice amount in USD.
+insights: Insights related to the data retrieved, including:
+total_invoices: The total number of invoices returned.
+total_due_amount_local: The total due amount in local currency.
+total_due_amount_usd: The total due amount in USD.
+invoice_status_distribution: The distribution of invoices across different statuses (e.g., OPEN, PAST DUE).
+customer_invoice_count: The number of invoices per customer.
+highest_invoice_due: Information on the highest due invoice (invoice number and amount).
+aging_bucket_distribution: The distribution of invoices across aging buckets.
+total_open_amount_local: The total open amount across all invoices in local currency.
+total_open_amount_usd: The total open amount across all invoices in USD.
+
+Error Codes:
+400 - Bad Request:
+This error occurs if the input is invalid or required fields are missing.
+json
+
+{
+  "error": "Invalid input or missing required fields."
+}
+
+401 - Unauthorized:
+This error is returned if the request lacks valid authentication tokens.
+json
+
+{
+  "error": "Unauthorized, invalid or missing authentication tokens."
+}
+
+429 - Too Many Requests:
+This error occurs if the rate limit is exceeded (100 requests per minute).
+json
+
+{
+  "error": "Too many requests, rate limit exceeded.",
+  "retry_after": 60,
+  "limit": 100
+}
+retry_after: The number of seconds the client should wait before retrying.
+limit: The maximum number of requests allowed per minute.
+
+500 - Internal Server Error:
+This error occurs if something goes wrong on the server side.
+json
+Copy
+{
+  "error": "Internal server error."
+}
+
+Example Request and Response
+Request:
+POST https://production-domain.com/api/v1/invoices/query
+Content-Type: application/json
+Authorization: Bearer <your-api-token>
+
+{
+  "query": "Show all invoices for Acme Corp.",
+  "page": 1,
+  "page_size": 100,
+  "sort_by": "invoice_date",
+  "sort_order": "desc"
+}
+Response (200 OK):
+json
+
+{
+  "sql_query": "SELECT * FROM invoices WHERE customer_name = 'Acme Corp.'",
+  "data": [
+    {
+      "subsidiary": "SubsidiaryA123",
+      "business_unit": "Sales",
+      "customer_name": "Acme Corp.",
+      "invoice_number": "INV123456",
+      "invoice_date": "2024-01-01",
+      "invoice_status": "OPEN",
+      "invoice_due_date": "2024-02-01",
+      "invoice_aging_bucket": "0-30",
+      "memo": "Initial invoice",
+      "invoice_original_amount_local": 1000.0,
+      "invoice_original_amount_usd": 1000.0,
+      "invoice_open_amount_local": 1000.0,
+      "invoice_open_amount_usd": 1000.0,
+      "invoice_due_amount_local": 1000.0,
+      "invoice_due_amount_usd": 1000.0
+    }
+  ],
+  "insights": {
+    "total_invoices": 100,
+    "total_due_amount_local": 50000.0,
+    "total_due_amount_usd": 50000.0,
+    "invoice_status_distribution": {
+      "OPEN": 60,
+      "PAST DUE": 30,
+      "CLOSED": 10
+    },
+    "customer_invoice_count": {
+      "Acme Corp.": 50,
+      "Beta Corp.": 30,
+      "Gamma Corp.": 20
+    },
+    "highest_invoice_due": {
+      "invoice_number": "INV123456",
+      "due_amount_local": 1000.0,
+      "due_amount_usd": 1000.0
+    },
+    "aging_bucket_distribution": {
+      "0-30": 60,
+      "31-60": 30,
+      "61-90": 10
+    },
+    "total_open_amount_local": 20000.0,
+    "total_open_amount_usd": 20000.0
+  }
+}
+
+---------------------------------------------------------------
+# openAPI.yaml specification
+-----------------------------------------------------------------
 openapi: 3.0.0
 info:
   title: AR Invoice Query API
@@ -307,27 +534,18 @@ components:
         error:
           type: string
   
-   RateLimitError:
-   type: object
-   properties:
-    error:
+    RateLimitError:
+    type: object
+    properties:
+     error:
       type: string
       description: Error message indicating rate limiting.
-    retry_after:
+     retry_after:
       type: integer
       description: Time in seconds to wait before retrying the request. The client must wait for this duration before making another request.
       example: 60
-    limit:
+     limit:
       type: integer
       description: The maximum number of requests allowed per minute.
       example: 100
 
-
-  securitySchemes:
-    BearerAuth:
-      type: http
-      scheme: bearer
-    UserToken:
-      type: apiKey
-      in: header
-      name: x-token
